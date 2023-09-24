@@ -1,9 +1,11 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 import 'camera_view.dart';
 import 'gallery_view.dart';
+import 'painters/pose_painter.dart';
 
 enum DetectorViewMode { liveFeed, gallery }
 
@@ -17,6 +19,7 @@ class DetectorView extends StatefulWidget {
     this.initialDetectionMode = DetectorViewMode.liveFeed,
     this.initialCameraLensDirection = CameraLensDirection.back,
     this.onCameraFeedReady,
+    this.posePainter,
     this.onDetectorViewModeChanged,
     this.onCameraLensDirectionChanged,
   }) : super(key: key);
@@ -24,6 +27,7 @@ class DetectorView extends StatefulWidget {
   final String title;
   final CustomPaint? customPaint;
   final String? text;
+  final PosePainter? posePainter;
   final DetectorViewMode initialDetectionMode;
   final Function(InputImage inputImage) onImage;
   final Function()? onCameraFeedReady;
@@ -50,6 +54,7 @@ class _DetectorViewState extends State<DetectorView> {
         ? CameraView(
             customPaint: widget.customPaint,
             onImage: widget.onImage,
+            posePainter: widget.posePainter,
             onCameraFeedReady: widget.onCameraFeedReady,
             onDetectorViewModeChanged: _onDetectorViewModeChanged,
             initialCameraLensDirection: widget.initialCameraLensDirection,

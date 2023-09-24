@@ -1,4 +1,18 @@
-# Google's ML Kit for Flutter
+# Push up Counter - App Based on the plugin(body_detection)
+
+- Plugin location: (./packages/google_mlkit_pose_detection)
+- **run the app** and get the packages command from ./packages/example/:
+```sh
+flutter pub get
+```
+- Demo:
+
+![](./gif-push-up-example.gif)
+
+
+--------------------
+
+## Google's ML Kit for Flutter
 
 Google's ML Kit for Flutter is a set of [Flutter plugins](https://flutter.io/platform-plugins/) that enable [Flutter](https://flutter.dev) apps to use [Google's standalone ML Kit](https://developers.google.com/ml-kit).
 

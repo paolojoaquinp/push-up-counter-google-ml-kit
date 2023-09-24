@@ -57,12 +57,10 @@ class PosePainter extends CustomPainter {
             paint);
       });
 
-      void paintLine(
-          PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
+      void paintLine(PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
         final PoseLandmark joint1 = pose.landmarks[type1]!;
         final PoseLandmark joint2 = pose.landmarks[type2]!;
-        canvas.drawLine(
-            Offset(
+        final p1 = Offset(
                 translateX(
                   joint1.x,
                   size,
@@ -76,8 +74,8 @@ class PosePainter extends CustomPainter {
                   imageSize,
                   rotation,
                   cameraLensDirection,
-                )),
-            Offset(
+                ));
+        final p2 = Offset(
                 translateX(
                   joint2.x,
                   size,
@@ -91,8 +89,11 @@ class PosePainter extends CustomPainter {
                   imageSize,
                   rotation,
                   cameraLensDirection,
-                )),
-            paintType);
+                ));
+        if(type1 == PoseLandmarkType.leftShoulder && type2 == PoseLandmarkType.leftElbow) {
+          /* print('pendiente: ${calcularPendiente(p1,p2)}'); */
+        }
+        canvas.drawLine(p1, p2, paintType);
       }
 
       //Draw arms

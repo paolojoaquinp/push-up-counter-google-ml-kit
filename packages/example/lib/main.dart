@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'nlp_detector_views/entity_extraction_view.dart';
 import 'nlp_detector_views/language_identifier_view.dart';
 import 'nlp_detector_views/language_translator_view.dart';
 import 'nlp_detector_views/smart_reply_view.dart';
+import 'providers/counter_bloc.dart';
 import 'vision_detector_views/barcode_scanner_view.dart';
 import 'vision_detector_views/digital_ink_recognizer_view.dart';
 import 'vision_detector_views/face_detector_view.dart';
@@ -23,9 +25,15 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Home(),
+    return BlocProvider(
+      create: (context) => PushUpBloc(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(
+          useMaterial3: true
+        ),
+        home: Home(),
+      ),
     );
   }
 }

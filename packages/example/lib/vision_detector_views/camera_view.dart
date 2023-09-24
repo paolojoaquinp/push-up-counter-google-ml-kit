@@ -3,11 +3,19 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_ml_kit_example/utils/utils.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
+
+import '../providers/counter_bloc.dart';
+import 'painters/coordinates_translator.dart';
+import 'painters/pose_painter.dart';
 
 class CameraView extends StatefulWidget {
   CameraView(
       {Key? key,
+      required this.posePainter,
       required this.customPaint,
       required this.onImage,
       this.onCameraFeedReady,
@@ -16,6 +24,7 @@ class CameraView extends StatefulWidget {
       this.initialCameraLensDirection = CameraLensDirection.back})
       : super(key: key);
 
+  final PosePainter? posePainter;
   final CustomPaint? customPaint;
   final Function(InputImage inputImage) onImage;
   final VoidCallback? onCameraFeedReady;
@@ -38,6 +47,10 @@ class _CameraViewState extends State<CameraView> {
   double _maxAvailableExposureOffset = 0.0;
   double _currentExposureOffset = 0.0;
   bool _changingCameraLens = false;
+
+  Offset p1 = Offset(0.0, 0.0);
+  Offset p2 = Offset(0.0, 0.0);
+  Offset p3 = Offset(0.0, 0.0);
 
   @override
   void initState() {
@@ -66,6 +79,59 @@ class _CameraViewState extends State<CameraView> {
     _stopLiveFeed();
     super.dispose();
   }
+
+
+
+  void updatePosition() {
+    if(widget.customPaint == null) return;
+    final size = MediaQuery.of(context).size;
+    for (final pose in widget.posePainter!.poses) {
+      Offset verifyLine(PoseLandmarkType type1) {
+        final PoseLandmark joint1 = pose.landmarks[type1]!;
+        return Offset(
+                translateX(
+                  joint1.x,
+                  size,
+                  widget.posePainter!.imageSize,
+                  widget.posePainter!.rotation,
+                  widget.posePainter!.cameraLensDirection,
+                ),
+                translateY(
+                  joint1.y,
+                  size,
+                  widget.posePainter!.imageSize,
+                  widget.posePainter!.rotation,
+                  widget.posePainter!.cameraLensDirection,
+                ));
+      }
+      p1 = verifyLine(PoseLandmarkType.leftShoulder);
+      p2 = verifyLine(PoseLandmarkType.leftElbow);
+      p3 = verifyLine(PoseLandmarkType.leftWrist);
+      /* print('pendienteAB: ${calcularPendiente(p1!,p2!).toStringAsFixed(2)}'); */
+      /* print('pendienteBC: ${calcularPendiente(p2!,p3!).toStringAsFixed(2)}'); */
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CameraView oldWidget) {
+    if(widget.customPaint != oldWidget.customPaint) {
+      final pushUpBloc = BlocProvider.of<PushUpBloc>(context);
+      updatePosition();
+      final res = isPushUp(p1,p2,p3,pushUpBloc.state);
+     if(res == PushUpState.complete) {
+          pushUpBloc.increment();
+        
+          pushUpBloc.setCurrentPose(PushUpState.neutral);
+     } else if(res != null) {
+          if(res == PushUpState.middleArms) {
+            pushUpBloc.increment();
+          }
+          pushUpBloc.setCurrentPose(res);
+     }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
 
   @override
   Widget build(BuildContext context) {
